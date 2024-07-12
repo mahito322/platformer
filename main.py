@@ -173,7 +173,6 @@ while run:
                         jump = False
                         platform_on = rect
                         break
-                    if player_box.right 
 
         else:
             if player_box.left > platform_on.right or player_box.right < platform_on.left:
