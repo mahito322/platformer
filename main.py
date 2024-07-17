@@ -77,6 +77,7 @@ continue_btn_box.center = (WIDTH//2, HEIGHT//2+60)
 
 platform = pg.image.load("images/platform.png")
 platform_box = platform.get_rect()
+platform_box[3] -= 20
 
 stay_on = False
 
@@ -89,12 +90,9 @@ coords = [
 ]
 platforms = []
 platform_on = None
-
+platform_collide = None
 for i in coords:
     platforms.append(pg.Rect(i[0], i[1], platform_box.width, platform_box.height))
-
-print(platforms)
-
 #Сама игра
 while run: 
     if game_mode == "menu":
@@ -130,10 +128,12 @@ while run:
                     player_image = player_right
                 if event.key == pg.K_LEFT:
                     direction = "left"
+
                     player_image = player_left
                 if event.key == pg.K_SPACE and not jump:
                     jump = True
                     jump_count = -9
+
             if event.type == pg.KEYUP:
                 if event.key == pg.K_RIGHT and direction == "right":
                     direction = "stop"
@@ -158,26 +158,39 @@ while run:
             if player_box.bottom >= 620:
                 jump = False
 
-        #отрисовка платформ
+        
         if not stay_on:
             if player_box.bottom <= 620 and not jump:
                 player_box.centery += jump_count
                 jump_count += 0.272
+            
+                
+            #отрисовка платформ
 
             for rect in platforms:
                 if player_box.colliderect(rect):
+                    platform_collide = rect
                     if player_box.top <= rect.bottom and jump_count < 0:
                         jump_count *= -1
                     elif player_box.bottom >= rect.top:
                         stay_on = True
                         jump = False
                         platform_on = rect
-                        break
+                    break
+                else:
+                    platform_collide = None
 
+            
         else:
             if player_box.left > platform_on.right or player_box.right < platform_on.left:
                 stay_on = False    
 
+        if platform_collide != None and direction == "right":
+                print(1)
+                if player_box.right >= platform_collide.left and player_box.right <= platform_collide.left + 6:
+                    print(2)
+                    print(stay_on)
+                    player_box.x -= 6
 
         window.blit(bg_game, (0, 0))
         window.blit(player_image, player_box)
@@ -218,6 +231,7 @@ while run:
 
         window.blit(continue_btn, continue_btn_box)
         window.blit(back_menu_btn, back_menu_box)
+
     pg.display.update()
     clock.tick(FPS)
 
